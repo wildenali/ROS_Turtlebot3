@@ -14,6 +14,7 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 import math
 import time
 from geometry_msgs.msg import Twist
+from std_msgs.msg import String
 
 roll = pitch = yaw = current_yaw = 0.0
 posisi_x = posisi_y = 0.0
@@ -40,8 +41,10 @@ desired_angle_goal = 0.0
 kP_yaw = 0.1
 kP_jarak = 0.01
 
-waypoint = 1
+waypoint = 0
 kecepatan_awal = 0.15
+
+posisi_terima = 0
 
 def posisiCallback(posisi_message):
     global roll, pitch, yaw, posisi_x, posisi_y, current_yaw
@@ -53,18 +56,31 @@ def posisiCallback(posisi_message):
     (roll, pitch, yaw) = euler_from_quaternion(orientation_list)
     current_yaw = yaw * 180/math.pi
 
+    
 
+def callback_dari_bb(msg):
+    global posisi_terima
+    posisi_terima = msg.data
+    # print(posisi_terima)
 
 def move():
     global roll, pitch, yaw, posisi_x, posisi_y, current_yaw
     global target_x, target_y, target_yaw, target_x1, target_y1
     global jarak_tempuh, desired_angle_goal
     global kP_yaw, kP_jarak
-    global waypoint, kecepatan_awal
+    # global waypoint
+    global kecepatan_awal
 
     loop_rate = rospy.Rate(100)  # publish message 10 times per seconds
     pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
-    waypoint = input("waypoint ke : ")
+
+    # global posisi_terima
+    # print(posisi_terima)
+    # print(posisi_x)
+    # waypoint = posisi_terima
+    # waypoint = input("waypoint ke : ")
+
+
     while True:
         if waypoint > 4 or waypoint < 1:
             break
@@ -156,14 +172,51 @@ def move():
 
 
 
+
 if __name__ == '__main__':
     try:
+        # hajarbleh = True
+        # rospy.init_node('turtlebot3_pos_yaw', anonymous=True)
+        # while hajarbleh == True:
+            # rospy.init_node('turtlebot3_pos_yaw', anonymous=True)
+            # posisi_topic = "/odom"
+            # pose_subscriber = rospy.Subscriber(posisi_topic, Odometry, posisiCallback)
+            # time.sleep(1)
+            # move()
+            
+        # sub = rospy.Subscriber("/bb_pub_py", String, callback_dari_bb)            
+        # rospy.spin()
+        
         hajarbleh = True
         while hajarbleh == True:
+            global posisi_terima
+            
+            # waypoint = input("waypoint ke : ")
             rospy.init_node('turtlebot3_pos_yaw', anonymous=True)
-            posisi_topic = "/odom"
-            pose_subscriber = rospy.Subscriber(posisi_topic, Odometry, posisiCallback)
-            time.sleep(1)
-            move()
+            sub = rospy.Subscriber("/bb_pub_py", String, callback_dari_bb)
+            
+            # print(type(posisi_terima))
+            waypoint = int(posisi_terima)
+            # print(waypoint)
+
+            if waypoint != 0:
+                rospy.init_node('turtlebot3_pos_yaw', anonymous=True)
+                posisi_topic = "/odom"
+                pose_subscriber = rospy.Subscriber(posisi_topic, Odometry, posisiCallback)
+                time.sleep(1)
+                move()
+                print('Sudah Sampai')
+                waypoint = 0
+            
+            # if waypoint == 2:
+            #     rospy.init_node('turtlebot3_pos_yaw', anonymous=True)
+            #     posisi_topic = "/odom"
+            #     pose_subscriber = rospy.Subscriber(posisi_topic, Odometry, posisiCallback)
+            #     time.sleep(1)
+            #     move()
+            #     # waypoint = 1
+        
+
+
     except rospy.ROSInterruptException:
         rospy.loginfo("node terminated.")

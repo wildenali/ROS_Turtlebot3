@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # cara eksekusi program ini
+# export TURTLEBOT3_MODEL=burger    , ini hanya dilakukan ketika setup pertama kali
 # roslaunch turtlebot3_gazebo turtlebot3_world.launch
 # roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=$HOME/catkin_ws/src/ROS_Turtlebot3/turtlebot3/turtlebot3_latihan/peta/map_kura_segienam.yaml
 # cd ~/catkin_ws/src/ROS_Turtlebot3/turtlebot3/turtlebot3_latihan/script
